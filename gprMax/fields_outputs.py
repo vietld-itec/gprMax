@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022: The University of Edinburgh
+# Copyright (C) 2015-2020: The University of Edinburgh
 #                 Authors: Craig Warren and Antonis Giannopoulos
 #
 # This file is part of gprMax.
@@ -21,7 +21,6 @@ from string import Template
 import h5py
 
 from gprMax._version import __version__
-from gprMax.grid import Ix, Iy, Iz
 
 
 def store_outputs(iteration, Ex, Ey, Ez, Hx, Hy, Hz, G):
@@ -110,14 +109,15 @@ def write_hdf5_outputfile(outputfile, G):
     f.attrs['nrx'] = len(G.rxs)
     f.attrs['srcsteps'] = G.srcsteps
     f.attrs['rxsteps'] = G.rxsteps
-
+    f.attrs['start'] = G.rxs[0].xcoord* G.dx
+    #print("Viet ",G.rxs[0].xcoord* G.dx)
     # Create group for sources (except transmission lines); add type and positional data attributes
     srclist = G.voltagesources + G.hertziandipoles + G.magneticdipoles
     for srcindex, src in enumerate(srclist):
         grp = f.create_group('/srcs/src' + str(srcindex + 1))
         grp.attrs['Type'] = type(src).__name__
         grp.attrs['Position'] = (src.xcoord * G.dx, src.ycoord * G.dy, src.zcoord * G.dz)
-
+        
     # Create group for transmission lines; add positional data, line resistance and
     # line discretisation attributes; write arrays for line voltages and currents
     for tlindex, tl in enumerate(G.transmissionlines):
