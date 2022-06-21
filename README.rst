@@ -249,25 +249,25 @@ b/	Plotting Bscan with normalized data (time domain)
 
     python –m tools.plot_Bscan_gain outputfile.out -norm
 
-c/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data (include depth)
+c/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data (including depth axis)
 
 .. code-block:: bash
 
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8
 
-d/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data (include depth)
+d/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data (including depth axis)
 
 .. code-block:: bash
 
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8 -norm
 
-e/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data and also apply gain function (include depth)
+e/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data and also apply gain function (including depth axis)
 
 .. code-block:: bash
 
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8 –gmin 1 –gmax 50
 
-f/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data and also apply gain function (include depth)
+f/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data and also apply gain function (including depth axis)
 
 .. code-block:: bash
 
