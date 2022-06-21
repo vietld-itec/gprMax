@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022: The University of Edinburgh
+# Copyright (C) 2015-2020: The University of Edinburgh
 #                 Authors: Craig Warren and Antonis Giannopoulos
 #
 # This file is part of gprMax.
@@ -24,6 +24,8 @@ import h5py
 import numpy as np
 
 from gprMax._version import __version__
+
+
 
 
 def get_output_data(filename, rxnumber, rxcomponent):
@@ -61,6 +63,43 @@ def get_output_data(filename, rxnumber, rxcomponent):
 
     return outputdata, dt
 
+def get_output_all_data(filename, rxnumber, rxcomponent):
+    """Gets B-scan output data from a model.
+
+    Args:
+        filename (string): Filename (including path) of output file.
+        rxnumber (int): Receiver output number.
+        rxcomponent (str): Receiver output field/current component.
+
+    Returns:
+        outputdata (array): Array of A-scans, i.e. B-scan data.
+        dt (float): Temporal resolution of the model.
+    """
+
+    # Open output file and read some attributes
+    f = h5py.File(filename, 'r')
+    nrx = f.attrs['nrx']
+    dt = f.attrs['dt']
+    start = f.attrs['start']
+    meshsize = f.attrs['dx_dy_dz']
+    #print(start)
+    dx = f.attrs['rxsteps'][0]*meshsize[0]
+    # Check there are any receivers
+    if nrx == 0:
+        raise CmdInputError('No receivers found in {}'.format(filename))
+
+    path = '/rxs/rx' + str(rxnumber) + '/'
+    availableoutputs = list(f[path].keys())
+
+    # Check if requested output is in file
+    if rxcomponent not in availableoutputs:
+        raise CmdInputError('{} output requested to plot, but the available output for receiver 1 is {}'.format(rxcomponent, ', '.join(availableoutputs)))
+
+    outputdata = f[path + '/' + rxcomponent]
+    outputdata = np.array(outputdata)
+    f.close()
+
+    return outputdata, dt,dx, start
 
 def merge_files(basefilename, removefiles=False):
     """Merges traces (A-scans) from multiple output files into one new file,
@@ -72,7 +111,7 @@ def merge_files(basefilename, removefiles=False):
     """
 
     outputfile = basefilename + '_merged.out'
-    files = glob.glob(basefilename + '[0-9]*.out')
+    files = glob.glob(basefilename + '*.out')
     outputfiles = [filename for filename in files if '_merged' not in filename]
     modelruns = len(outputfiles)
 
@@ -89,14 +128,20 @@ def merge_files(basefilename, removefiles=False):
             fout.attrs['Title'] = fin.attrs['Title']
             fout.attrs['gprMax'] = __version__
             fout.attrs['Iterations'] = fin.attrs['Iterations']
+            fout.attrs['dx_dy_dz'] = fin.attrs['dx_dy_dz']
             fout.attrs['dt'] = fin.attrs['dt']
+            fout.attrs['rxsteps'] = fin.attrs['rxsteps']
+            fout.attrs['start'] = fin.attrs['start']
             fout.attrs['nrx'] = fin.attrs['nrx']
+            
             for rx in range(1, nrx + 1):
                 path = '/rxs/rx' + str(rx)
                 grp = fout.create_group(path)
                 availableoutputs = list(fin[path].keys())
+                k = 0;
                 for output in availableoutputs:
                     grp.create_dataset(output, (fout.attrs['Iterations'], modelruns), dtype=fin[path + '/' + output].dtype)
+            
 
         # For all receivers
         for rx in range(1, nrx + 1):
@@ -105,7 +150,6 @@ def merge_files(basefilename, removefiles=False):
             # For all receiver outputs
             for output in availableoutputs:
                 fout[path + '/' + output][:, model] = fin[path + '/' + output][:]
-
         fin.close()
 
     fout.close()
