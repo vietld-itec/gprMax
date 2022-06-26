@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022: The University of Edinburgh
+# Copyright (C) 2015-2020: The University of Edinburgh
 #                 Authors: Craig Warren and Antonis Giannopoulos
 #
 # This file is part of gprMax.
@@ -31,7 +31,6 @@ import glob
 import os
 import pathlib
 import re
-import subprocess
 import shutil
 import sys
 
@@ -118,27 +117,14 @@ if sys.platform == 'win32':
 # Mac OS X - needs gcc (usually via HomeBrew) because the default compiler LLVM (clang) does not support OpenMP
 #          - with gcc -fopenmp option implies -pthread
 elif sys.platform == 'darwin':
-    # Check for Intel or Apple M series CPU
-    cpuID = subprocess.check_output("sysctl -n machdep.cpu.brand_string", shell=True, stderr=subprocess.STDOUT).decode('utf-8').strip()
-    cpuID = ' '.join(cpuID.split())
-    if 'Apple' in cpuID:
-        gccpath = glob.glob('/opt/homebrew/bin/gcc-[4-9]*')
-        gccpath += glob.glob('/opt/homebrew/bin/gcc-[10-11]*')
-        if gccpath:
-            # Use newest gcc found
-            os.environ['CC'] = gccpath[-1].split(os.sep)[-1]
-            rpath = '/opt/homebrew/opt/gcc/lib/gcc/' + gccpath[-1].split(os.sep)[-1][-1] + '/'
-        else:
-            raise('Cannot find gcc 4-10 in /opt/homebrew/bin. gprMax requires gcc to be installed - easily done through the Homebrew package manager (http://brew.sh). Note: gcc with OpenMP support is required.')
+    gccpath = glob.glob('/usr/local/bin/gcc-[4-9]*')
+    gccpath += glob.glob('/usr/local/bin/gcc-[10-11]*')
+    if gccpath:
+        # Use newest gcc found
+        os.environ['CC'] = gccpath[-1].split(os.sep)[-1]
+        rpath = '/usr/local/opt/gcc/lib/gcc/' + gccpath[-1].split(os.sep)[-1][-1] + '/'
     else:
-        gccpath = glob.glob('/usr/local/bin/gcc-[4-9]*')
-        gccpath += glob.glob('/usr/local/bin/gcc-[10-11]*')
-        if gccpath:
-            # Use newest gcc found
-            os.environ['CC'] = gccpath[-1].split(os.sep)[-1]
-            rpath = '/usr/local/opt/gcc/lib/gcc/' + gccpath[-1].split(os.sep)[-1][-1] + '/'
-        else:
-            raise('Cannot find gcc 4-10 in /usr/local/bin. gprMax requires gcc to be installed - easily done through the Homebrew package manager (http://brew.sh). Note: gcc with OpenMP support is required.')
+        raise('Cannot find gcc 4-10 in /usr/local/bin. gprMax requires gcc to be installed - easily done through the Homebrew package manager (http://brew.sh). Note: gcc with OpenMP support is required.')
     compile_args = ['-O3', '-w', '-fopenmp', '-march=native']  # Sometimes worth testing with '-fstrict-aliasing', '-fno-common'
     linker_args = ['-fopenmp', '-Wl,-rpath,' + rpath]
     libraries = ['iomp5', 'pthread']
@@ -219,5 +205,4 @@ setup(name=packagename,
       ext_modules=extensions,
       packages=packages,
       include_package_data=True,
-      include_dirs=[np.get_include()],
-      zip_safe=False)
+      include_dirs=[np.get_include()])

@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2022: The University of Edinburgh
+# Copyright (C) 2015-2020: The University of Edinburgh
 #                 Authors: Craig Warren and Antonis Giannopoulos
 #
 # This file is part of gprMax.
@@ -20,6 +20,7 @@ import numpy as np
 from scipy import fftpack
 
 from gprMax.constants import floattype
+from gprMax.constants import complextype
 from gprMax.fractals_generate_ext import generate_fractal2D
 from gprMax.fractals_generate_ext import generate_fractal3D
 from gprMax.utilities import round_value
@@ -74,14 +75,14 @@ class FractalSurface(object):
         elif self.zs == self.zf:
             surfacedims = (self.nx, self.ny)
 
-        self.fractalsurface = np.zeros(surfacedims, dtype=np.complex128)
+        self.fractalsurface = np.zeros(surfacedims, dtype=complextype)
 
         # Positional vector at centre of array, scaled by weighting
         v1 = np.array([self.weighting[0] * (surfacedims[0]) / 2, self.weighting[1] * (surfacedims[1]) / 2])
 
         # 2D array of random numbers to be convolved with the fractal function
-        rng = np.random.default_rng(seed=self.seed)
-        A = rng.standard_normal(size=(surfacedims[0], surfacedims[1]))
+        R = np.random.RandomState(self.seed)
+        A = R.randn(surfacedims[0], surfacedims[1])
 
         # 2D FFT
         A = fftpack.fftn(A)
@@ -93,19 +94,14 @@ class FractalSurface(object):
 
         # Shift the zero frequency component to start of the array
         self.fractalsurface = fftpack.ifftshift(self.fractalsurface)
-        # Set DC component of FFT to zero
-        self.fractalsurface[0, 0] = 0
-        # Take the real part (numerical errors can give rise to an imaginary part)
-        #  of the IFFT, and convert type to floattype. N.B calculation of fractals
-        # must always be carried out at double precision, i.e. float64, complex128
-        self.fractalsurface = np.real(fftpack.ifftn(self.fractalsurface)).astype(floattype, copy=False)
+        # Take the real part (numerical errors can give rise to an imaginary part) of the IFFT
+        self.fractalsurface = np.real(fftpack.ifftn(self.fractalsurface))
         # Scale the fractal volume according to requested range
         fractalmin = np.amin(self.fractalsurface)
         fractalmax = np.amax(self.fractalsurface)
         fractalrange = fractalmax - fractalmin
-        self.fractalsurface = (self.fractalsurface * ((self.fractalrange[1] - self.fractalrange[0]) / fractalrange) 
-                               + self.fractalrange[0] - ((self.fractalrange[1] - self.fractalrange[0]) / fractalrange) 
-                               * fractalmin)
+        self.fractalsurface = self.fractalsurface * ((self.fractalrange[1] - self.fractalrange[0]) / fractalrange) \
+            + self.fractalrange[0] - ((self.fractalrange[1] - self.fractalrange[0]) / fractalrange) * fractalmin
 
 
 class FractalVolume(object):
@@ -161,14 +157,14 @@ class FractalVolume(object):
         # Adjust weighting to account for filter scaling
         self.weighting = np.multiply(self.weighting, filterscaling)
 
-        self.fractalvolume = np.zeros((self.nx, self.ny, self.nz), dtype=np.complex128)
+        self.fractalvolume = np.zeros((self.nx, self.ny, self.nz), dtype=complextype)
 
         # Positional vector at centre of array, scaled by weighting
         v1 = np.array([self.weighting[0] * self.nx / 2, self.weighting[1] * self.ny / 2, self.weighting[2] * self.nz / 2])
 
         # 3D array of random numbers to be convolved with the fractal function
-        rng = np.random.default_rng(seed=self.seed)
-        A = rng.standard_normal(size=(self.nx, self.ny, self.nz))
+        R = np.random.RandomState(self.seed)
+        A = R.randn(self.nx, self.ny, self.nz)
 
         # 3D FFT
         A = fftpack.fftn(A)
@@ -180,13 +176,8 @@ class FractalVolume(object):
 
         # Shift the zero frequency component to the start of the array
         self.fractalvolume = fftpack.ifftshift(self.fractalvolume)
-        # Set DC component of FFT to zero
-        self.fractalvolume[0, 0, 0] = 0
-        # Take the real part (numerical errors can give rise to an imaginary part) 
-        # of the IFFT, and convert type to floattype. N.B calculation of fractals
-        # must always be carried out at double precision, i.e. float64, complex128
-        self.fractalvolume = np.real(fftpack.ifftn(self.fractalvolume)).astype(floattype, copy=False)
-
+        # Take the real part (numerical errors can give rise to an imaginary part) of the IFFT
+        self.fractalvolume = np.real(fftpack.ifftn(self.fractalvolume))
         # Bin fractal values
         bins = np.linspace(np.amin(self.fractalvolume), np.amax(self.fractalvolume), self.nbins)
         for j in range(self.ny):
@@ -194,10 +185,9 @@ class FractalVolume(object):
                 self.fractalvolume[:, j, k] = np.digitize(self.fractalvolume[:, j, k], bins, right=True)
 
     def generate_volume_mask(self):
-        """Generate a 3D volume to use as a mask for adding rough surfaces, 
-            water and grass/roots. Zero signifies the mask is not set, one 
-            signifies the mask is set.
         """
+        Generate a 3D volume to use as a mask for adding rough surfaces, water and grass/roots.
+        Zero signifies the mask is not set, one signifies the mask is set."""
 
         self.mask = np.zeros((self.nx, self.ny, self.nz), dtype=np.int8)
         maskxs = self.originalxs - self.xs
@@ -223,16 +213,16 @@ class Grass(object):
         self.seed = None
 
         # Randomly defined parameters that will be used to calculate geometry
-        self.R1 = np.random.default_rng(seed=self.seed)
-        self.R2 = np.random.default_rng(seed=self.seed)
-        self.R3 = np.random.default_rng(seed=self.seed)
-        self.R4 = np.random.default_rng(seed=self.seed)
-        self.R5 = np.random.default_rng(seed=self.seed)
-        self.R6 = np.random.default_rng(seed=self.seed)
+        self.R1 = np.random.RandomState(self.seed)
+        self.R2 = np.random.RandomState(self.seed)
+        self.R3 = np.random.RandomState(self.seed)
+        self.R4 = np.random.RandomState(self.seed)
+        self.R5 = np.random.RandomState(self.seed)
+        self.R6 = np.random.RandomState(self.seed)
 
         for i in range(self.numblades):
-            self.geometryparams[i, 0] = 10 + 20 * self.R1.random()
-            self.geometryparams[i, 1] = 10 + 20 * self.R2.random()
+            self.geometryparams[i, 0] = 10 + 20 * self.R1.random_sample()
+            self.geometryparams[i, 1] = 10 + 20 * self.R2.random_sample()
             self.geometryparams[i, 2] = self.R3.choice([-1, 1])
             self.geometryparams[i, 3] = self.R4.choice([-1, 1])
 
@@ -265,8 +255,8 @@ class Grass(object):
             x, y (float): x and y coordinates of grass root.
         """
 
-        self.geometryparams[root, 4] += -1 + 2 * self.R5.random()
-        self.geometryparams[root, 5] += -1 + 2 * self.R6.random()
+        self.geometryparams[root, 4] += -1 + 2 * self.R5.random_sample()
+        self.geometryparams[root, 5] += -1 + 2 * self.R6.random_sample()
         x = round(self.geometryparams[root, 4])
         y = round(self.geometryparams[root, 5])
 

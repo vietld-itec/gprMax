@@ -88,7 +88,7 @@ We recommend using Miniconda to install Python and the required Python packages 
 
     $ conda update conda
     $ conda install git
-    $ git clone https://github.com/vietld-itec/gprMax.git
+    $ git clone https://github.com/gprMax/gprMax.git
     $ cd gprMax
     $ conda env create -f conda_env.yml
 
@@ -118,11 +118,12 @@ macOS
 
 Microsoft Windows
 ^^^^^^^^^^^^^^^^^
- 
-* Download and install Microsoft `Build Tools for Visual Studio 2022 <https://aka.ms/vs/17/release/vs_BuildTools.exe>`_ (direct link). You can also find it on the `Microsoft Visual Studio downloads page <https://visualstudio.microsoft.com/downloads/>`_ by scrolling down to the 'All Downloads' section, clicking the disclosure triangle by 'Tools for Visual Studio 2022', then clicking the download button next to 'Build Tools for Visual Studio 2022'. When installing, choose the 'Desktop development with C++' Workload and select only 'MSVC v143' and 'Windows 10 SDK' or 'Windows 11 SDK options.
-* Set the Path and Environment Variables - this can be done by following the `instructions from Microsoft <https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-160#developer_command_file_locations>`_, or manually by adding a form of :code:`C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.23.28105\bin\Hostx64\x64` (this may vary according to your exact machine and installation) to your system Path environment variable.
 
-Alternatively if you are using Windows 10/11 you can install the `Windows Subsystem for Linux <https://docs.microsoft.com/en-gb/windows/wsl/about>`_ and then follow the Linux install instructions for gprMax. Note however that currently WSL does not aim to support GUI desktops or applications, e.g. Gnome, KDE, etc....
+* Download and install `Microsoft Visual C++ 2015 Build Tools <http://download.microsoft.com/download/5/F/7/5F7ACAEB-8363-451F-9425-68A90F98B238/visualcppbuildtools_full.exe>`_ (currently you must use the 2015 version, not 2017). Use the custom installation option and deselect everything apart from the Windows SDK for your version of Windows.
+
+Alternatively if you are using Windows 10 and feeling adventurous you can install the `Windows Subsystem for Linux <https://docs.microsoft.com/en-gb/windows/wsl/about>`_ and then follow the Linux install instructions for gprMax. Note however that currently WSL does not aim to support GUI desktops or applications, e.g. Gnome, KDE, etc....
+
+
 
 3. Build and install gprMax
 ---------------------------
@@ -137,6 +138,8 @@ Once you have installed the aforementioned tools follow these steps to build and
     (gprMax)$ python setup.py install
 
 **You are now ready to proceed to running gprMax.**
+
+If you have problems with building gprMax on Microsoft Windows, you may need to add :code:`C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin` to your path environment variable.
 
 Running gprMax
 ==============
@@ -211,86 +214,3 @@ Periodically you should update conda and the required Python packages. With the 
 
     $ conda update conda
     $ conda env update -f conda_env.yml
-
-How to use plot_A_scan_raw.py and plot_Bscan_gain.py (Developed by Viet Le @ 2020)
-===============
-1. plot_A_scan_raw.py
-------------------------------------------------------------------
-a/	Export raw data and normalized data ( *.csv files): Plot Ascan, export rawdata and normalized data ( 2 csv files)
-
-.. code-block:: bash
-
-    python –m tools.plot_Ascan_raw outputfile.out –outputs Ez –rawdata
-
-b/	Plotting Ascan from rawdata. I won’t export data (not thing, don’t have *.csv file, this feature like plot_Ascan.py from gprMax package)
-
-.. code-block:: bash
-
-    python –m tools.plot_Ascan_raw outputfile.out –outputs Ez
-
-c/ Plotting Ascan from normalized data
-
-.. code-block:: bash
-
-    python –m tools.plot_Ascan_raw outputfile.out –outputs Ez -plotnorm
-
-
-2. plot_B_scan_gain.py
-------------------------------------------------------------------
-a/	Plotting Bscan with raw data (time domain)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out
-
-b/	Plotting Bscan with normalized data (time domain)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out -norm
-
-c/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data (including depth axis)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –er 4.8
-
-d/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data (including depth axis)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –er 4.8 -norm
-
-e/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data and also apply gain function (including depth axis)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –er 4.8 –gmin 1 –gmax 50
-
-f/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data and also apply gain function (including depth axis)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –er 4.8 -norm –gmin 1 –gmax 50
-
-g/	Plotting Bscan with raw data and also apply gain function (time domain)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –gmin 1 –gmax 50
-
-h/	Plotting Bscan with normalized data and also apply gain function (time domain)
-
-.. code-block:: bash
-
-    python –m tools.plot_Bscan_gain outputfile.out –gmin 1 –gmax 50 -norm
-
-(Contact to Author: viet.xd.bkdn@gmail.com / Kakaotalk ID: vietld1991)
-
-
-
-
-
-
-
-
