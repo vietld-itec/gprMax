@@ -222,16 +222,19 @@ How to use plot_A_scan_raw.py and plot_Bscan_gain.py (Developed by Viet Le @ 202
 a/	Export raw data and normalized data ( *.csv files): Plot Ascan, export rawdata and normalized data ( 2 csv files)
 
 .. code-block:: bash
+
     python –m tools.plot_Ascan_raw outputfile.out –outputs Ez –rawdata
     
 b/	Plotting Ascan from rawdata. I won’t export data (not thing, don’t have *.csv file, this feature like plot_Ascan.py from gprMax package)
 
 .. code-block:: bash
+
     python –m tools.plot_Ascan_raw outputfile.out –outputs Ez
     
 c/ Plotting Ascan from normalized data
 
 .. code-block:: bash
+
     python –m tools.plot_Ascan_raw outputfile.out –outputs Ez -plotnorm
     
 2. plot_B_scan_gain.py
@@ -239,41 +242,49 @@ c/ Plotting Ascan from normalized data
 a/	Plotting Bscan with raw data (time domain)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out
     
 b/	Plotting Bscan with normalized data (time domain)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out -norm
     
 c/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data (including depth axis)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8
     
 d/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data (including depth axis)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8 -norm
     
 e/	Plotting Bscan with er (equivalent relative dielectric constant) with raw data and also apply gain function (including depth axis)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8 –gmin 1 –gmax 50
     
 f/	Plotting Bscan with er (equivalent relative dielectric constant) with normalized data and also apply gain function (including depth axis)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –er 4.8 -norm –gmin 1 –gmax 50
     
 g/	Plotting Bscan with raw data and also apply gain function (time domain)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –gmin 1 –gmax 50
     
 h/	Plotting Bscan with normalized data and also apply gain function (time domain)
 
 .. code-block:: bash
+
     python –m tools.plot_Bscan_gain outputfile.out –gmin 1 –gmax 50 -norm
     
 (Contact to Author: viet.xd.bkdn@gmail.com / Kakaotalk ID: vietld1991)
